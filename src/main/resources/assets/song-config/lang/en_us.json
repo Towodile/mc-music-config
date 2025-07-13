@@ -1,1 +1,10 @@
-{ "options.sounds.musicconfig.title": "Music Configuration" }
+{
+  "options.sounds.musicconfig.title": "Music Configuration",
+  "options.sounds.musicconfig.reset": "Reset to Default",
+
+  "options.sounds.musicconfig.frequency": "Frequency",
+  "options.sounds.musicconfig.frequency.never": "Never",
+  "options.sounds.musicconfig.frequency.rarely": "Rarely",
+  "options.sounds.musicconfig.frequency.sometimes": "Sometimes",
+  "options.sounds.musicconfig.frequency.often": "Often"
+}

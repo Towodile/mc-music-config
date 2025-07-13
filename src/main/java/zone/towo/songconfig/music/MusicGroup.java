@@ -1,10 +1,11 @@
 package zone.towo.songconfig.music;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.Sound;
-import net.minecraft.client.sound.SoundContainer;
-import net.minecraft.client.sound.SoundManager;
-import net.minecraft.client.sound.WeightedSoundSet;
+import net.minecraft.client.sound.*;
+import net.minecraft.registry.Registries;
+import net.minecraft.sound.MusicSound;
+import net.minecraft.sound.MusicType;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.random.Random;
 import zone.towo.songconfig.MusicConfigMod;
 import zone.towo.songconfig.mixin.WeightedSoundSetAccessor;
@@ -27,7 +28,7 @@ public record MusicGroup(String name, ArrayList<MusicTrack> tracks) {
             WeightedSoundSetAccessor accessor = (WeightedSoundSetAccessor) soundSet;
             List<SoundContainer<Sound>> sounds = accessor.getSounds();
             String formattedName = key.getPath().replace("music.", "").replace(".", ": ").replace("_", " ");
-            MusicConfigMod.LOGGER.info("\nFound music group: " + formattedName);
+
 
             for (SoundContainer<Sound> sound : sounds) {
                 tracks.add(new MusicTrack(sound.getSound(random)));
