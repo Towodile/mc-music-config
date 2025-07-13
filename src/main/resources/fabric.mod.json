@@ -16,10 +16,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"client": [
-          "zone.towo.songconfig.SongConfigMod"
+          "zone.towo.songconfig.MusicConfigMod"
 		],
 		"fabric-datagen": [
-			"zone.towo.songconfig.SongConfigDataGenerator"
+			"zone.towo.songconfig.MusicConfigDataGenerator"
 		]
 	},
 	"mixins": [
