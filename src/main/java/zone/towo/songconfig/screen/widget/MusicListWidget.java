@@ -1,20 +1,17 @@
 package zone.towo.songconfig.screen.widget;
 
+import com.google.common.collect.ImmutableList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
-import net.minecraft.client.gui.screen.world.WorldListWidget;
-import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.sound.MusicInstance;
 import net.minecraft.client.sound.MusicTracker;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.sound.MusicSound;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import zone.towo.songconfig.music.MusicGroup;
 import zone.towo.songconfig.music.MusicTrack;
@@ -27,14 +24,14 @@ import java.util.List;
 public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
     private ArrayList<MusicGroupEntry> allGroupEntries;
     public MusicListWidget(ArrayList<MusicGroup> musicGroups, MusicConfigScreen parent, MinecraftClient client) {
-        super(client, parent.width, parent.layout.getContentHeight(), 0, 20);
+        super(client, parent.width, parent.layout.getContentHeight(), parent.layout.getHeaderHeight(), 20);
         this.allGroupEntries = new ArrayList<>();
         for (MusicGroup group : musicGroups) {
             List<MusicEntry> children = new ArrayList<>();
             for (MusicTrack track : group.tracks()) {
-                children.add(new MusicEntry(track, this));
+                children.add(new MusicEntry(track));
             }
-            this.allGroupEntries.add(new MusicGroupEntry(group.name(), children));
+            this.allGroupEntries.add(new MusicGroupEntry(group.name(), group.groupedMusic(), children));
         }
 
         populate();
@@ -62,20 +59,23 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
     }
 
     @Override
-    protected int getScrollbarX() {
-        return this.getRowRight() + 80;
+    public int getRowWidth() {
+        return 340;
     }
 
-    public static class MusicEntry extends Entry {
+    @Override
+    protected int getScrollbarX() {
+        return this.getRowWidth() + 80;
+    }
+
+    public  class MusicEntry extends Entry {
         private final MusicTrack track;
         private final MusicFrequencySliderWidget frequencySlider;
-        private boolean visible = true;
-        private MusicListWidget parent;
+        private boolean visible;
 
-        public MusicEntry(MusicTrack track, MusicListWidget parent) {
+        public MusicEntry(MusicTrack track) {
             this.visible = true;
             this.track = track;
-            this.parent = parent;
             this.frequencySlider = new MusicFrequencySliderWidget(track, 0, 0, 150, 20,
                     Text.translatable("options.sounds.musicconfig.frequency", track.getTitle()), track.getFrequency());
         }
@@ -86,15 +86,13 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
 
         public void setVisible(boolean visible) {
             this.visible = visible;
-            parent.populate();
         }
 
         @Override
         public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-            frequencySlider.setX(x + 120);
-            frequencySlider.setY(y - 8);
+            frequencySlider.setPosition(x+185,y-8);
             frequencySlider.render(context, mouseX, mouseY, tickDelta);
-            context.drawText(MinecraftClient.getInstance().textRenderer, track.getTitle(), x - 65, y, Color.WHITE.getRGB(), false);
+            context.drawText(MinecraftClient.getInstance().textRenderer, track.getTitle().asTruncatedString(29), x+25, y, Color.WHITE.getRGB(), false);
         }
 
 
@@ -133,36 +131,52 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
         }
     }
 
-    public static class MusicGroupEntry extends Entry {
+    public class MusicGroupEntry extends Entry {
         private final String groupName;
+        private final MusicSound sound;
         private List<MusicEntry> children;
-        public MusicGroupEntry(String groupName, List<MusicEntry> children) {
+        private final ButtonWidget btn;
+
+        public MusicGroupEntry(String groupName, MusicSound sound, List<MusicEntry> children) {
             this.groupName = groupName;
+            this.sound = sound;
             this.children = children;
+            this.btn = ButtonWidget.builder(Text.literal("►"), (button -> {
+                        MusicTracker musicTracker = MinecraftClient.getInstance().getMusicTracker();
+                        musicTracker.stop();
+                        musicTracker.play(new MusicInstance(sound));
+            }))
+                    .dimensions(0, 0, 10, 10)
+                    .build();
+
         }
 
         @Override
         public void render(DrawContext context, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+            btn.setPosition(x,y);
+            btn.render(context, mouseX, mouseY, tickDelta);
             context.drawText(MinecraftClient.getInstance().textRenderer,
-                    groupName, x - 75, y, Color.gray.getRGB(), false);
+                    groupName + " (" + sound.sound().getKey().orElse(null).getValue().toString() + ")", x+15, y, Color.gray.getRGB(), false);
         }
 
         @Override
         public List<? extends Element> children() {
-            return children;
-        }
-
-        @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            this.children.forEach(entry -> {
-                entry.setVisible(!entry.isVisible());
-            });
-            return true;
+            return ImmutableList.of(btn);
         }
 
         @Override
         public List<? extends Selectable> selectableChildren() {
-            return List.of();
+            return ImmutableList.of(btn);
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (btn.mouseClicked(mouseX, mouseY, button)) {
+                return true;
+            }
+            this.children.forEach(entry -> entry.setVisible(!entry.isVisible()));
+            MusicListWidget.this.populate();
+            return super.mouseClicked(mouseX, mouseY, button);
         }
     }
 
