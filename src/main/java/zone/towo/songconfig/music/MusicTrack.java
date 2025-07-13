@@ -2,6 +2,7 @@ package zone.towo.songconfig.music;
 
 import net.minecraft.client.sound.Sound;
 import net.minecraft.text.Text;
+import zone.towo.songconfig.util.SoundExtension;
 
 public class MusicTrack {
     private final Text title;
@@ -37,9 +38,10 @@ public class MusicTrack {
 
     public void setFrequency(float frequency) {
         this.frequency = frequency;
+        ((SoundExtension)sound).setWeight((int) frequency);
     }
 
     public void resetFrequency() {
-        this.frequency = this.initialFrequency;
+        this.setFrequency((float) this.initialFrequency);
     }
 }

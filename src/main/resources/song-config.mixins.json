@@ -3,7 +3,8 @@
 	"package": "zone.towo.songconfig.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"WeightedSoundSetAccessor",
+		"sound.SoundMixin",
+		"sound.WeightedSoundSetAccessor",
 		"screen.SoundOptionsScreenMixin"
 	],
 	"injectors": {

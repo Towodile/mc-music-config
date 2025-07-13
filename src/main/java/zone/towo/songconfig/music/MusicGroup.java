@@ -7,7 +7,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.random.Random;
-import zone.towo.songconfig.mixin.WeightedSoundSetAccessor;
+import zone.towo.songconfig.mixin.sound.WeightedSoundSetAccessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +28,6 @@ public record MusicGroup(String name, MusicSound groupedMusic, ArrayList<MusicTr
             WeightedSoundSetAccessor accessor = (WeightedSoundSetAccessor) soundSet;
             List<SoundContainer<Sound>> sounds = accessor.getSounds();
             String formattedName = key.getValue().getPath().replace("music.", "").replace(".", ": ").replace("_", " ");
-
-
 
             for (SoundContainer<Sound> sound : sounds) {
                 tracks.add(new MusicTrack(sound.getSound(random)));
