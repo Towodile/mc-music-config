@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "song-config",
+	"version": "${version}",
+	"name": "Song Config",
+	"description": "Configure frequencies and requirements per background music track to play!",
+	"authors": [
+		"Towo"
+	],
+	"contact": {
+		"homepage": "https://towo.zone/",
+		"sources": "https://github.com/Towodile/song-config"
+	},
+	"license": "MIT",
+	"icon": "assets/song-config/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+          "zone.towo.songconfig.SongConfigMod"
+		],
+		"fabric-datagen": [
+			"zone.towo.songconfig.SongConfigDataGenerator"
+		]
+	},
+	"mixins": [
+		"song-config.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.21.7",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
