@@ -8,42 +8,43 @@ public class MusicFrequencySliderWidget extends SliderWidget {
     private final MusicTrack musicTrack;
 
     public MusicFrequencySliderWidget(MusicTrack track, int x, int y, int width, int height, Text text, double value) {
-        super(x, y, width, height, text, value);
+        super(x, y, width, height, text, value/10);
         this.musicTrack = track;
     }
 
 
     @Override
     protected void updateMessage() {
-        String message = Text.translatable("options.sounds.musicconfig.frequency").getString() + ": " + FrequencyName.of(value).text.getString() + " (" + (int)(value * 100) + ")";
+        String message = Text.translatable("options.sounds.musicconfig.frequency").getString() + ": " + FrequencyName.of((int) (value*10)).text.getString() + " (" + (int)(value*10) + ")";
         this.setMessage(Text.literal(message));
     }
 
     public void reset() {
         musicTrack.resetFrequency();
-        this.value = musicTrack.getFrequency();
+        this.value = musicTrack.getFrequency()/10;
         this.applyValue();
         this.updateMessage();
     }
 
     @Override
     protected void applyValue() {
-        musicTrack.setFrequency((float)this.value);
+        musicTrack.setFrequency((float)this.value * 10);
     }
 
     private enum FrequencyName {
-        NEVER(0.0f, Text.translatable("options.sounds.musicconfig.frequency.never")),
-        RARELY(0.25f, Text.translatable("options.sounds.musicconfig.frequency.rarely")),
-        SOMETIMES(0.5f, Text.translatable("options.sounds.musicconfig.frequency.sometimes")),
-        OFTEN(0.75f, Text.translatable("options.sounds.musicconfig.frequency.often"));
+        NEVER(0, Text.translatable("options.sounds.musicconfig.frequency.never")),
+        RARELY(1, Text.translatable("options.sounds.musicconfig.frequency.rarely")),
+        SOMETIMES(4, Text.translatable("options.sounds.musicconfig.frequency.sometimes")),
+        OFTEN(6, Text.translatable("options.sounds.musicconfig.frequency.often")),
+        VERY_OFTEN(9, Text.translatable("options.sounds.musicconfig.frequency.very_often"));
         private final float value;
         private final Text text;
-        FrequencyName(float value, Text text) {
+        FrequencyName(int value, Text text) {
             this.value = value;
             this.text = text;
         }
 
-        static FrequencyName of(double value) {
+        static FrequencyName of(int value) {
             FrequencyName[] all = FrequencyName.values();
             for (int i = 0; i < all.length; i++) {
                 FrequencyName frequency = all[i];
