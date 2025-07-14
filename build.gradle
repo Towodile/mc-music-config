@@ -1,6 +1,7 @@
 plugins {
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+	id "me.modmuss50.mod-publish-plugin" version "0.8.4"
 }
 
 version = project.mod_version
@@ -80,5 +81,36 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
+	}
+}
+
+publishMods {
+	file = remapJar.archiveFile
+	type = STABLE
+	modLoaders.add("fabric")
+	changelog = file("changelogs/${project.version}.md").text
+
+	curseforge {
+		accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+		projectId = "1306656"
+		minecraftVersions.add("${project.minecraft_version}")
+		clientRequired = true
+		serverRequired = false
+		changelogType = "markdown"
+	}
+
+	modrinth {
+		projectId = "ljtQ841z"
+		accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+		minecraftVersions.add("${project.minecraft_version}")
+		
+	}
+
+	github {
+		repository = "Towodile/mc-music-config"
+		accessToken = providers.environmentVariable("GITHUB_TOKEN_MOD_PUBLISHER")
+		commitish = "${project.minecraft_version}-main"
+		tagName = "release/${project.version}"
+		allowEmptyFiles = false
 	}
 }
