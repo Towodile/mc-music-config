@@ -22,7 +22,7 @@ Usually, when Minecraft plays background music, it selects a random music track 
 
 Now you can enjoy your custom music experience in Minecraft!
 
-![](assets\screenshot.png)
+![](https://github.com/Towodile/mc-music-config/blob/1.21.7-main/assets/screenshot.png)
 **Example:** setting play frequency per track from the "nether: crimson forest" context.
 
 
