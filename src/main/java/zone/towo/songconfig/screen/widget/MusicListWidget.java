@@ -28,7 +28,7 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
     private ArrayList<MusicGroupEntry> allGroupEntries;
     private MusicConfigScreen parent;
     public MusicListWidget(ArrayList<MusicGroup> musicGroups, MusicConfigScreen parent, MinecraftClient client) {
-        super(client, parent.width, parent.layout.getContentHeight()-26 , parent.layout.getHeaderHeight(), 20);
+        super(client, (int) (parent.layout.getWidth() / 1.1), (int) (parent.layout.getHeight() /1.68), parent.layout.getHeaderHeight(), 20);
         this.parent = parent;
         this.allGroupEntries = new ArrayList<>();
         for (MusicGroup group : musicGroups) {
@@ -38,20 +38,27 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
             }
             this.allGroupEntries.add(new MusicGroupEntry(group.name(), group.groupedMusic(), children));
         }
-
-        populate();
+        this.populate();
     }
 
-    private void populate() {
+    public void populate(String searchTerm) {
         this.clearEntries();
         for (MusicGroupEntry groupEntry : allGroupEntries) {
             this.addEntry(groupEntry);
             for (MusicEntry entry : groupEntry.tracks) {
-                if (entry.isVisible()) {
+                if (entry.isVisible() && conformsToSearch(entry, searchTerm)) {
                     this.addEntry(entry);
                 }
             }
         }
+    }
+
+    private void populate() {
+        this.populate(this.parent.getCurrentSearchTerm());
+    }
+
+    private boolean conformsToSearch(MusicEntry entry, String searchTerm) {
+        return searchTerm.isEmpty() || entry.track.getTitle().getString().toLowerCase().contains(searchTerm.toLowerCase());
     }
 
     public void resetIfConfirmed() {
@@ -148,12 +155,13 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
         private final List<MusicEntry> tracks;
         private final ButtonWidget playButton;
         private final ButtonWidget resetButton;
+        private boolean collapsed;
 
         public MusicGroupEntry(String groupName, MusicSound sound, List<MusicEntry> tracks) {
             this.groupName = groupName;
             this.sound = sound;
             this.tracks = tracks;
-            this.playButton = ButtonWidget.builder(Text.literal("►"), (button -> {
+            this.playButton = ButtonWidget.builder(Text.literal("▶"), (button -> {
                         MusicTracker musicTracker = MinecraftClient.getInstance().getMusicTracker();
                         musicTracker.stop();
                         musicTracker.play(new MusicInstance(sound));
@@ -170,6 +178,7 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
                     .build();
 
             resetButton.setTooltip(Tooltip.of(Text.translatable("options.sounds.musicconfig.reset")));
+            this.collapsed = false;
         }
 
         @Override
@@ -178,8 +187,9 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
             resetButton.setPosition(MusicListWidget.this.getScrollbarX() - 50,y);
             playButton.render(context, mouseX, mouseY, tickDelta);
             resetButton.render(context, mouseX, mouseY, tickDelta);
+            String collapseIcon = collapsed ? "▶" : "▼";
             context.drawText(MinecraftClient.getInstance().textRenderer,
-                    groupName + " (" + sound.sound().getKey().orElse(null).getValue().toString() + ")", x+15, y, Color.gray.getRGB(), false);
+                      collapseIcon + " " + groupName + " (" + sound.sound().getKey().orElse(null).getValue().toString() + ")", x+15, y, Color.gray.getRGB(), false);
         }
 
         @Override
@@ -197,9 +207,14 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
             if (playButton.mouseClicked(mouseX, mouseY, button) || resetButton.mouseClicked(mouseX, mouseY, button)) {
                 return true;
             }
+            this.collapse();
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        private void collapse() {
+            this.collapsed = !this.collapsed;
             this.tracks.forEach(entry -> entry.setVisible(!entry.isVisible()));
             MusicListWidget.this.populate();
-            return super.mouseClicked(mouseX, mouseY, button);
         }
 
         public void resetTracksIfConfirmed() {

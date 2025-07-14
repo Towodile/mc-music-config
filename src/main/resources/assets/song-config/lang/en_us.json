@@ -1,5 +1,6 @@
 {
   "options.sounds.musicconfig.title": "Music Configuration",
+  "options.sounds.musicconfig.search": "Search music track...",
 
   "options.sounds.musicconfig.preview": "Preview random Music",
   "options.sounds.musicconfig.preview.inmenu": "Works best if done outside of Main Menu (e.g. in a world)",

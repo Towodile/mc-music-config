@@ -4,9 +4,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
+import net.minecraft.client.gui.screen.option.SoundOptionsScreen;
+import net.minecraft.client.gui.widget.*;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.random.Random;
@@ -19,6 +18,7 @@ import java.util.ArrayList;
 public class MusicConfigScreen extends GameOptionsScreen {
     private static ArrayList<MusicGroup> musicGroups;
     private MusicListWidget musicList;
+    private String currentSearchTerm = "";
 
     public MusicConfigScreen(Screen parent, MinecraftClient client) {
         super(parent, client.options, Text.translatable("options.sounds.musicconfig.title"));
@@ -27,10 +27,38 @@ public class MusicConfigScreen extends GameOptionsScreen {
         }
     }
 
+    @Override
+    protected void initHeader() {
+        this.layout.setHeaderHeight((int) (this.layout.getHeight() / 6.2));
+        DirectionalLayoutWidget header = this.layout.addHeader(DirectionalLayoutWidget.vertical().spacing(6));
+        header.getMainPositioner().alignHorizontalCenter();
+        header.add(new TextWidget(this.title, this.textRenderer));
+
+        TextFieldWidget searchBox = new TextFieldWidget(
+                this.textRenderer,
+                (this.layout.getWidth()  / 4),
+                15,
+                this.layout.getWidth() / 2,
+                15,
+                Text.translatable("options.sounds.musicconfig.search"));
+
+        searchBox.setChangedListener(term -> {
+            this.currentSearchTerm = term;
+            this.musicList.populate(term);
+        });
+
+        searchBox.setPlaceholder(Text.translatable("options.sounds.musicconfig.search"));
+        header.add(searchBox);
+    }
+
+    public String getCurrentSearchTerm() {
+        return currentSearchTerm;
+    }
 
     @Override
     protected void initBody() {
         this.musicList = this.layout.addBody(new MusicListWidget(musicGroups, this, this.client));
+
     }
 
     @Override
@@ -39,7 +67,7 @@ public class MusicConfigScreen extends GameOptionsScreen {
     }
 
     protected void initFooter() {
-        this.layout.setFooterHeight(66);
+        this.layout.setFooterHeight(this.layout.getHeight() / 4);
         ButtonWidget resetAllButton = ButtonWidget.builder(
                 Text.translatable("options.sounds.musicconfig.reset"),
                 (button) -> this.musicList.resetIfConfirmed()
