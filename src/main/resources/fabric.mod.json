@@ -2,8 +2,8 @@
 	"schemaVersion": 1,
 	"id": "music-config",
 	"version": "${version}",
-	"name": "Song Config",
-	"description": "Configure frequency of occurence per background music track!",
+	"name": "Music Config",
+	"description": "Configure how much a music track should be played.",
 	"authors": [
 		"Towo"
 	],
@@ -27,7 +27,7 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.16.14",
-		"minecraft": "~1.21.7",
+		"minecraft": "~1.21.6",
 		"java": ">=21",
 		"fabric-api": "*"
 	},
