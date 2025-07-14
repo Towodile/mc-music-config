@@ -1,4 +1,4 @@
-package zone.towo.songconfig.file;
+package zone.towo.musicconfig.file;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -6,7 +6,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
-import zone.towo.songconfig.music.MusicGroup;
+import zone.towo.musicconfig.MusicConfigMod;
+import zone.towo.musicconfig.music.MusicGroup;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,6 +44,7 @@ public record SaveableMusicConfig(List<SaveableMusicGroup> musicGroups) {
                 return Optional.empty();
             }
         } catch (Exception e) {
+            MusicConfigMod.LOGGER.warn("Couldn't read music config file. Using default settings. \n(Cause: {})", e.getMessage());
             return Optional.empty();
         }
     }
@@ -53,6 +55,7 @@ public record SaveableMusicConfig(List<SaveableMusicGroup> musicGroups) {
             Files.writeString(configPath, json);
             return true;
         } catch (Exception e) {
+            MusicConfigMod.LOGGER.error(e.getMessage());
             return false;
         }
     }
@@ -64,7 +67,6 @@ public record SaveableMusicConfig(List<SaveableMusicGroup> musicGroups) {
 
     private static SaveableMusicConfig fromJson(String json) {
         Gson gson = new GsonBuilder().create();
-        SaveableMusicConfig config = gson.fromJson(json, SaveableMusicConfig.class);
-        return config;
+        return gson.fromJson(json, SaveableMusicConfig.class);
     }
 }

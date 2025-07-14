@@ -1,6 +1,6 @@
-package zone.towo.songconfig.file;
+package zone.towo.musicconfig.file;
 
-import zone.towo.songconfig.music.MusicTrack;
+import zone.towo.musicconfig.music.MusicTrack;
 
 public record SaveableMusicTrack(String soundFile, int frequency) {
 

@@ -1,6 +1,6 @@
-package zone.towo.songconfig.file;
+package zone.towo.musicconfig.file;
 
-import zone.towo.songconfig.music.MusicGroup;
+import zone.towo.musicconfig.music.MusicGroup;
 
 import java.util.List;
 

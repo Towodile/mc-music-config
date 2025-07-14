@@ -1,8 +1,8 @@
-package zone.towo.songconfig.music;
+package zone.towo.musicconfig.music;
 
 import net.minecraft.client.sound.Sound;
 import net.minecraft.text.Text;
-import zone.towo.songconfig.util.SoundExtension;
+import zone.towo.musicconfig.util.SoundExtension;
 
 public class MusicTrack {
     private final Text title;

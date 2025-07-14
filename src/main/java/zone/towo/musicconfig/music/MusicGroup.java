@@ -1,4 +1,4 @@
-package zone.towo.songconfig.music;
+package zone.towo.musicconfig.music;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.*;
@@ -7,8 +7,8 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.random.Random;
-import zone.towo.songconfig.file.SaveableMusicConfig;
-import zone.towo.songconfig.mixin.sound.WeightedSoundSetAccessor;
+import zone.towo.musicconfig.file.SaveableMusicConfig;
+import zone.towo.musicconfig.mixin.sound.WeightedSoundSetAccessor;
 
 import java.util.*;
 

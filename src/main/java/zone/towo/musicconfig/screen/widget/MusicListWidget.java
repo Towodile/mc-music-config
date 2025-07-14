@@ -1,4 +1,4 @@
-package zone.towo.songconfig.screen.widget;
+package zone.towo.musicconfig.screen.widget;
 
 import com.google.common.collect.ImmutableList;
 import net.fabricmc.api.EnvType;
@@ -16,9 +16,9 @@ import net.minecraft.client.sound.MusicTracker;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.text.Text;
-import zone.towo.songconfig.music.MusicGroup;
-import zone.towo.songconfig.music.MusicTrack;
-import zone.towo.songconfig.screen.MusicConfigScreen;
+import zone.towo.musicconfig.music.MusicGroup;
+import zone.towo.musicconfig.music.MusicTrack;
+import zone.towo.musicconfig.screen.MusicConfigScreen;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
     private ArrayList<MusicGroupEntry> allGroupEntries;
     private MusicConfigScreen parent;
     public MusicListWidget(ArrayList<MusicGroup> musicGroups, MusicConfigScreen parent, MinecraftClient client) {
-        super(client, (int) (parent.layout.getWidth() / 1.1), (int) (parent.layout.getHeight() /1.68), parent.layout.getHeaderHeight(), 20);
+        super(client, parent.layout.getWidth(), (int) (parent.layout.getHeight() /1.68), parent.layout.getHeaderHeight(), 20);
         this.parent = parent;
         this.allGroupEntries = new ArrayList<>();
         for (MusicGroup group : musicGroups) {

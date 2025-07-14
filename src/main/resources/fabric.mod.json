@@ -1,29 +1,29 @@
 {
 	"schemaVersion": 1,
-	"id": "song-config",
+	"id": "music-config",
 	"version": "${version}",
 	"name": "Song Config",
-	"description": "Configure frequencies and requirements per background music track to play!",
+	"description": "Configure frequency of occurence per background music track!",
 	"authors": [
 		"Towo"
 	],
 	"contact": {
 		"homepage": "https://towo.zone/",
-		"sources": "https://github.com/Towodile/song-config"
+		"sources": "https://github.com/Towodile/music-config"
 	},
 	"license": "MIT",
-	"icon": "assets/song-config/icon.png",
+	"icon": "assets/music-config/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"client": [
-          "zone.towo.songconfig.MusicConfigMod"
+          "zone.towo.musicconfig.MusicConfigMod"
 		],
 		"fabric-datagen": [
-			"zone.towo.songconfig.MusicConfigDataGenerator"
+			"zone.towo.musicconfig.MusicConfigDataGenerator"
 		]
 	},
 	"mixins": [
-		"song-config.mixins.json"
+		"music-config.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.16.14",

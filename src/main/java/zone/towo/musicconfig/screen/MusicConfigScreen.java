@@ -1,17 +1,17 @@
-package zone.towo.songconfig.screen;
+package zone.towo.musicconfig.screen;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
-import net.minecraft.client.gui.screen.option.SoundOptionsScreen;
 import net.minecraft.client.gui.widget.*;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.random.Random;
-import zone.towo.songconfig.file.SaveableMusicConfig;
-import zone.towo.songconfig.music.MusicGroup;
-import zone.towo.songconfig.screen.widget.MusicListWidget;
+import zone.towo.musicconfig.MusicConfigMod;
+import zone.towo.musicconfig.file.SaveableMusicConfig;
+import zone.towo.musicconfig.music.MusicGroup;
+import zone.towo.musicconfig.screen.widget.MusicListWidget;
 
 import java.util.ArrayList;
 
@@ -77,7 +77,8 @@ public class MusicConfigScreen extends GameOptionsScreen {
         ClickableWidget toastToggleButton = this.gameOptions.getShowNowPlayingToast().createWidget(this.gameOptions);
 
         ButtonWidget doneButton = ButtonWidget.builder(ScreenTexts.DONE, (button) -> {
-            SaveableMusicConfig.of(musicGroups).save();
+            boolean saved = SaveableMusicConfig.of(musicGroups).save();
+            if (!saved) MusicConfigMod.LOGGER.error("Failed to save music settings!");
             this.close();
         }).build();
 

@@ -1,6 +1,6 @@
 {
 	"required": true,
-	"package": "zone.towo.songconfig.mixin",
+	"package": "zone.towo.musicconfig.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"sound.SoundMixin",

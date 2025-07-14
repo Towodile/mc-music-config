@@ -1,4 +1,4 @@
-package zone.towo.songconfig.mixin.sound;
+package zone.towo.musicconfig.mixin.sound;
 
 import net.minecraft.client.sound.WeightedSoundSet;
 import net.minecraft.client.sound.SoundContainer;
