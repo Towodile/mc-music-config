@@ -7,10 +7,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.gui.screen.ConfirmScreen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.sound.MusicInstance;
 import net.minecraft.client.sound.MusicTracker;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.text.Text;
 import zone.towo.songconfig.music.MusicGroup;
@@ -23,8 +26,10 @@ import java.util.List;
 
 public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
     private ArrayList<MusicGroupEntry> allGroupEntries;
+    private MusicConfigScreen parent;
     public MusicListWidget(ArrayList<MusicGroup> musicGroups, MusicConfigScreen parent, MinecraftClient client) {
-        super(client, parent.width, parent.layout.getContentHeight(), parent.layout.getHeaderHeight(), 20);
+        super(client, parent.width, parent.layout.getContentHeight()-26 , parent.layout.getHeaderHeight(), 20);
+        this.parent = parent;
         this.allGroupEntries = new ArrayList<>();
         for (MusicGroup group : musicGroups) {
             List<MusicEntry> children = new ArrayList<>();
@@ -41,7 +46,7 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
         this.clearEntries();
         for (MusicGroupEntry groupEntry : allGroupEntries) {
             this.addEntry(groupEntry);
-            for (MusicEntry entry : groupEntry.children) {
+            for (MusicEntry entry : groupEntry.tracks) {
                 if (entry.isVisible()) {
                     this.addEntry(entry);
                 }
@@ -49,13 +54,19 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
         }
     }
 
-    public void resetAll() {
-        for (int i = 0; i < this.getEntryCount(); i++) {
-            Entry entry = this.getEntry(i);
-            if (entry instanceof MusicEntry musicEntry) {
-                musicEntry.frequencySlider.reset();
+    public void resetIfConfirmed() {
+        this.client.setScreen(new ConfirmScreen((confirmed) -> {
+            if (confirmed) {
+                for (int i = 0; i < this.getEntryCount(); i++) {
+                    Entry entry = this.getEntry(i);
+                    if (entry instanceof MusicEntry musicEntry) {
+                        musicEntry.frequencySlider.reset();
+                    }
+                }
             }
-        }
+
+            this.client.setScreen(this.parent);
+        }, Text.translatable("options.sounds.musicconfig.reset"), Text.translatable("options.sounds.musicconfig.reset.question.all"), Text.translatable("options.sounds.musicconfig.reset.confirm"), ScreenTexts.CANCEL));
     }
 
     @Override
@@ -65,7 +76,7 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
 
     @Override
     protected int getScrollbarX() {
-        return this.getRowWidth() + 80;
+        return this.getRowRight() + 30;
     }
 
     public  class MusicEntry extends Entry {
@@ -134,14 +145,15 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
     public class MusicGroupEntry extends Entry {
         private final String groupName;
         private final MusicSound sound;
-        private List<MusicEntry> children;
-        private final ButtonWidget btn;
+        private final List<MusicEntry> tracks;
+        private final ButtonWidget playButton;
+        private final ButtonWidget resetButton;
 
-        public MusicGroupEntry(String groupName, MusicSound sound, List<MusicEntry> children) {
+        public MusicGroupEntry(String groupName, MusicSound sound, List<MusicEntry> tracks) {
             this.groupName = groupName;
             this.sound = sound;
-            this.children = children;
-            this.btn = ButtonWidget.builder(Text.literal("►"), (button -> {
+            this.tracks = tracks;
+            this.playButton = ButtonWidget.builder(Text.literal("►"), (button -> {
                         MusicTracker musicTracker = MinecraftClient.getInstance().getMusicTracker();
                         musicTracker.stop();
                         musicTracker.play(new MusicInstance(sound));
@@ -149,34 +161,59 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
                     .dimensions(0, 0, 10, 10)
                     .build();
 
+            Text playText = MusicListWidget.this.client.player != null ? Text.translatable("options.sounds.musicconfig.preview") :
+                    Text.translatable("options.sounds.musicconfig.preview").append("\n").append(Text.translatable("options.sounds.musicconfig.preview.inmenu").withColor(Color.yellow.getRGB()));
+
+            playButton.setTooltip(Tooltip.of(playText));
+            this.resetButton = ButtonWidget.builder(Text.literal(" ↶ "), (button -> resetTracksIfConfirmed()))
+                    .dimensions(0, 0, 10, 10)
+                    .build();
+
+            resetButton.setTooltip(Tooltip.of(Text.translatable("options.sounds.musicconfig.reset")));
         }
 
         @Override
         public void render(DrawContext context, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-            btn.setPosition(x,y);
-            btn.render(context, mouseX, mouseY, tickDelta);
+            playButton.setPosition(x,y);
+            resetButton.setPosition(MusicListWidget.this.getScrollbarX() - 50,y);
+            playButton.render(context, mouseX, mouseY, tickDelta);
+            resetButton.render(context, mouseX, mouseY, tickDelta);
             context.drawText(MinecraftClient.getInstance().textRenderer,
                     groupName + " (" + sound.sound().getKey().orElse(null).getValue().toString() + ")", x+15, y, Color.gray.getRGB(), false);
         }
 
         @Override
         public List<? extends Element> children() {
-            return ImmutableList.of(btn);
+            return ImmutableList.of(playButton);
         }
 
         @Override
         public List<? extends Selectable> selectableChildren() {
-            return ImmutableList.of(btn);
+            return ImmutableList.of(playButton);
         }
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (btn.mouseClicked(mouseX, mouseY, button)) {
+            if (playButton.mouseClicked(mouseX, mouseY, button) || resetButton.mouseClicked(mouseX, mouseY, button)) {
                 return true;
             }
-            this.children.forEach(entry -> entry.setVisible(!entry.isVisible()));
+            this.tracks.forEach(entry -> entry.setVisible(!entry.isVisible()));
             MusicListWidget.this.populate();
             return super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        public void resetTracksIfConfirmed() {
+            MusicListWidget.this.client.setScreen(new ConfirmScreen((confirmed) -> {
+                if (confirmed) {
+                    for (Entry entry : this.tracks) {
+                        if (entry instanceof MusicEntry musicEntry) {
+                            musicEntry.frequencySlider.reset();
+                        }
+                    }
+                }
+
+                MusicListWidget.this.client.setScreen(MusicListWidget.this.parent);
+            }, Text.translatable("options.sounds.musicconfig.reset"), Text.translatable("options.sounds.musicconfig.reset.question", groupName), Text.translatable("options.sounds.musicconfig.reset.confirm"), ScreenTexts.CANCEL));
         }
     }
 

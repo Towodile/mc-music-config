@@ -1,6 +1,13 @@
 {
   "options.sounds.musicconfig.title": "Music Configuration",
+
+  "options.sounds.musicconfig.preview": "Preview random Music",
+  "options.sounds.musicconfig.preview.inmenu": "Works best if done outside of Main Menu (e.g. in a world)",
+
   "options.sounds.musicconfig.reset": "Reset to Default",
+  "options.sounds.musicconfig.reset.question": "Are you sure you want to reset the changes made to music for context '%s'?",
+  "options.sounds.musicconfig.reset.question.all": "Are you sure you want to reset all changes and undo your music preferences entirely?",
+  "options.sounds.musicconfig.reset.confirm": "Reset",
 
   "options.sounds.musicconfig.frequency": "Frequency",
   "options.sounds.musicconfig.frequency.never": "Never",
