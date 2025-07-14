@@ -14,6 +14,7 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.random.Random;
 import zone.towo.songconfig.MusicConfigMod;
+import zone.towo.songconfig.file.SaveableMusicConfig;
 import zone.towo.songconfig.music.MusicGroup;
 import zone.towo.songconfig.screen.widget.MusicListWidget;
 
@@ -50,6 +51,7 @@ public class MusicConfigScreen extends GameOptionsScreen {
         directionalLayoutWidget.add(this.gameOptions.getMusicFrequency().createWidget(this.gameOptions));
         directionalLayoutWidget.add(this.gameOptions.getShowNowPlayingToast().createWidget(this.gameOptions));
         directionalLayoutWidget.add(ButtonWidget.builder(ScreenTexts.DONE, (button) -> {
+            SaveableMusicConfig.of(musicGroups).save();
             this.close();
         }).build());
     }

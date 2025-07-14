@@ -8,16 +8,24 @@ public class MusicTrack {
     private final Text title;
     private final Sound sound;
     private final String source;
-    private double frequency;
-    private final double initialFrequency;
+    private int frequency;
+    private final int initialFrequency;
 
     public MusicTrack(Sound sound) {
+        this(sound, sound.getWeight());
+    }
+
+    public MusicTrack(Sound sound, int frequency) {
         String translationKey = sound.getIdentifier().toShortTranslationKey();
         this.title = Text.translatable(translationKey.replace("/", "."));
         this.sound = sound;
         this.source = sound.getIdentifier().getNamespace();
-        this.frequency = sound.getWeight();
-        this.initialFrequency = this.frequency;
+
+        this.initialFrequency = sound.getWeight();
+        this.frequency = frequency;
+        if (frequency != initialFrequency) {
+            ((SoundExtension)sound).setWeight(frequency);
+        }
     }
 
     public Text getTitle() {
@@ -32,16 +40,20 @@ public class MusicTrack {
         return source;
     }
 
-    public double getFrequency() {
+    public int getFrequency() {
         return frequency;
     }
 
-    public void setFrequency(float frequency) {
+    public void setFrequency(int frequency) {
         this.frequency = frequency;
-        ((SoundExtension)sound).setWeight((int) frequency);
+        ((SoundExtension)sound).setWeight(frequency);
     }
 
-    public void resetFrequency() {
-        this.setFrequency((float) this.initialFrequency);
+    /**
+     * @return the frequency after resetting (its initial value)
+     */
+    public int resetFrequency() {
+        this.setFrequency(this.initialFrequency);
+        return this.frequency;
     }
 }

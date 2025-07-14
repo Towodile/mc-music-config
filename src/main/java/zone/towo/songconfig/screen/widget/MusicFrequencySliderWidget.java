@@ -20,15 +20,14 @@ public class MusicFrequencySliderWidget extends SliderWidget {
     }
 
     public void reset() {
-        musicTrack.resetFrequency();
-        this.value = musicTrack.getFrequency()/10;
+        this.value = (double) musicTrack.resetFrequency() / 10;
         this.applyValue();
         this.updateMessage();
     }
 
     @Override
     protected void applyValue() {
-        musicTrack.setFrequency((float)this.value * 10);
+        musicTrack.setFrequency((int) (this.value * 10));
     }
 
     private enum FrequencyName {
