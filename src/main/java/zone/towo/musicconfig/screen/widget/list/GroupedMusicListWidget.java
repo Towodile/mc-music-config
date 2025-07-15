@@ -112,7 +112,9 @@ public class GroupedMusicListWidget extends ElementListWidget<GroupedMusicListWi
         public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
             frequencySlider.setPosition(x+185,y-8);
             frequencySlider.render(context, mouseX, mouseY, tickDelta);
-            context.drawText(MinecraftClient.getInstance().textRenderer, track.getTitle().asTruncatedString(29), x+25, y, Color.WHITE.getRGB(), false);
+            String italic = track.isVanilla() ? "" : "§o";
+            Text title = Text.of(italic + track.getTitle().asTruncatedString(29));
+            context.drawText(MinecraftClient.getInstance().textRenderer, title, x+25, y, Color.WHITE.getRGB(), false);
         }
 
 

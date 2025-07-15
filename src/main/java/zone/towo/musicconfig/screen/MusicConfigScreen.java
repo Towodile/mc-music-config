@@ -94,19 +94,6 @@ public class MusicConfigScreen extends GameOptionsScreen {
         row2.add(resetAllButton);
         row2.add(doneButton);
 
-        ButtonWidget addButton = ButtonWidget.builder(
-                Text.literal("Add Sound To First"),
-                (button) -> this.client.setScreen(
-                        new MusicListScreen(
-                                MusicResource.getAll(this.client),
-                                this,
-                                this.gameOptions,
-                                (selected) -> {
-                                    musicGroups.get(1).addTracks(this.client.getSoundManager(), selected.toArray(new MusicTrack[0]));
-                                }))
-        ).build();
-
-        row2.add(addButton);
         footer.add(row1);
         footer.add(row2);
     }

@@ -6,11 +6,9 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.floatprovider.ConstantFloatProvider;
 import net.minecraft.util.math.random.Random;
 import zone.towo.musicconfig.file.SaveableMusicConfig;
-import zone.towo.musicconfig.mixin.sound.SoundManagerAccessor;
+import zone.towo.musicconfig.file.SaveableMusicGroup;
 import zone.towo.musicconfig.mixin.sound.WeightedSoundSetAccessor;
 
 import java.util.*;
@@ -35,21 +33,39 @@ public record MusicGroup(String name, MusicSound groupedMusic, ArrayList<MusicTr
 
             for (SoundContainer<Sound> sound : sounds) {
                 if (savedData.isPresent()) {
-                    Optional<Integer> frequency = savedData.get().getFrequencyForSound(key, sound.getSound(random).getIdentifier());
+                    Optional<Integer> frequency = savedData.get().getFrequencyForSoundEvent(key, sound.getSound(random).getIdentifier());
                     if (frequency.isPresent()) {
-                        MusicTrack track = new MusicTrack(sound.getSound(random), frequency.get());
+                        MusicTrack track = new MusicTrack(sound.getSound(random), frequency.get(), true);
                         tracks.add(track);
                         continue;
                     }
                 }
 
-                tracks.add(new MusicTrack(sound.getSound(random)));
+                tracks.add(new MusicTrack(sound.getSound(random), true));
             }
 
             Optional<RegistryEntry.Reference<SoundEvent>> soundEvent = Registries.SOUND_EVENT.getEntry(key.getValue());
-            MusicSound musicSound = soundEvent.isPresent() ? new MusicSound(soundEvent.get(), Integer.MAX_VALUE, 0,true) : null;
+            MusicSound musicSound = soundEvent.isPresent() ? new MusicSound(soundEvent.get(), Integer.MAX_VALUE, 0, true) : null;
             if (!tracks.isEmpty()) musicGroups.add(new MusicGroup(formattedName, musicSound, tracks));
         }
+
+        for (MusicGroup group : musicGroups) {
+            List<MusicResource> missingResources = MusicResource.getAll(client);
+            for (MusicResource resource : missingResources) {
+                int frequency = 0;
+                if (savedData.isPresent()) {
+                    Optional<Integer> optFrequency = savedData.get().getFrequencyForSoundEvent(group.groupedMusic.sound().getKey().get(), resource.resource());
+                    frequency = optFrequency.orElse(frequency);
+                }
+                group.addTracks(soundManager, resource.createTrack(1f, 1f, frequency));
+            }
+        }
+        musicGroups.forEach(mg -> mg.tracks.sort(
+                        Comparator
+                                .comparing(tr -> (!((MusicTrack) tr).isVanilla()))
+                                .thenComparing(tr -> ((MusicTrack) tr).getTitle().getString())
+                )
+        );
         musicGroups.sort(Comparator.comparing(mg -> mg.name().toLowerCase()));
         return musicGroups;
     }
@@ -60,13 +76,6 @@ public record MusicGroup(String name, MusicSound groupedMusic, ArrayList<MusicTr
                 this.asSoundSet(soundManager).add(track.getSound());
                 tracks.add(track);
             }
-        }
-    }
-
-    public void removeTrack(MusicTrack track, SoundManager soundManager) {
-        if (this.has(track.getSound())) {
-            // remove
-            tracks.remove(track);
         }
     }
 

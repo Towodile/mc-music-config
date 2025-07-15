@@ -4,6 +4,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.Sound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.floatprovider.ConstantFloatProvider;
+import zone.towo.musicconfig.file.SaveableMusicGroup;
+import zone.towo.musicconfig.file.SaveableMusicTrack;
 import zone.towo.musicconfig.mixin.sound.SoundManagerAccessor;
 
 import java.util.ArrayList;
@@ -28,11 +30,11 @@ public record MusicResource(Identifier resource) {
 
 
     public MusicTrack createTrack() {
-        return createTrack(1f, 1f, 10);
+        return createTrack(1f, 1f, 0);
     }
 
     public MusicTrack createTrack(float baseVolume, float basePitch, int weight) {
         Sound sound = new Sound(resource, ConstantFloatProvider.create(baseVolume), ConstantFloatProvider.create(basePitch), weight, Sound.RegistrationType.FILE, true, true, 16);
-        return new MusicTrack(sound);
+        return new MusicTrack(sound, false);
     }
 }
