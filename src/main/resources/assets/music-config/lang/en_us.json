@@ -15,8 +15,5 @@
   "options.sounds.musicconfig.frequency.rarely": "Rarely",
   "options.sounds.musicconfig.frequency.sometimes": "Sometimes",
   "options.sounds.musicconfig.frequency.often": "Often",
-  "options.sounds.musicconfig.frequency.very_often": "Very Often",
-
-  "options.sounds.musicconfig.musiclist.title": "Select Music Track",
-  "options.sounds.musicconfig.musiclist.confirm": "Confirm"
+  "options.sounds.musicconfig.frequency.very_often": "Very Often"
 }
