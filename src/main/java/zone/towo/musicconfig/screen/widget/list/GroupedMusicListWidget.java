@@ -1,4 +1,4 @@
-package zone.towo.musicconfig.screen.widget;
+package zone.towo.musicconfig.screen.widget.list;
 
 import com.google.common.collect.ImmutableList;
 import net.fabricmc.api.EnvType;
@@ -19,22 +19,24 @@ import net.minecraft.text.Text;
 import zone.towo.musicconfig.music.MusicGroup;
 import zone.towo.musicconfig.music.MusicTrack;
 import zone.towo.musicconfig.screen.MusicConfigScreen;
+import zone.towo.musicconfig.screen.widget.MusicButtons;
+import zone.towo.musicconfig.screen.widget.MusicFrequencySliderWidget;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
+public class GroupedMusicListWidget extends ElementListWidget<GroupedMusicListWidget.Entry> {
     private ArrayList<MusicGroupEntry> allGroupEntries;
     private MusicConfigScreen parent;
-    public MusicListWidget(ArrayList<MusicGroup> musicGroups, MusicConfigScreen parent, MinecraftClient client) {
+    public GroupedMusicListWidget(ArrayList<MusicGroup> musicGroups, MusicConfigScreen parent, MinecraftClient client) {
         super(client, parent.layout.getWidth(), (int) (parent.layout.getHeight() /1.68), parent.layout.getHeaderHeight(), 20);
         this.parent = parent;
         this.allGroupEntries = new ArrayList<>();
         for (MusicGroup group : musicGroups) {
-            List<MusicEntry> children = new ArrayList<>();
+            List<GroupedTrackEntry> children = new ArrayList<>();
             for (MusicTrack track : group.tracks()) {
-                children.add(new MusicEntry(track));
+                children.add(new GroupedTrackEntry(track));
             }
             this.allGroupEntries.add(new MusicGroupEntry(group.name(), group.groupedMusic(), children));
         }
@@ -45,7 +47,7 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
         this.clearEntries();
         for (MusicGroupEntry groupEntry : allGroupEntries) {
             this.addEntry(groupEntry);
-            for (MusicEntry entry : groupEntry.tracks) {
+            for (GroupedTrackEntry entry : groupEntry.tracks) {
                 if (entry.isVisible() && conformsToSearch(entry, searchTerm)) {
                     this.addEntry(entry);
                 }
@@ -57,7 +59,7 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
         this.populate(this.parent.getCurrentSearchTerm());
     }
 
-    private boolean conformsToSearch(MusicEntry entry, String searchTerm) {
+    private boolean conformsToSearch(GroupedTrackEntry entry, String searchTerm) {
         return searchTerm.isEmpty() || entry.track.getTitle().getString().toLowerCase().contains(searchTerm.toLowerCase());
     }
 
@@ -66,7 +68,7 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
             if (confirmed) {
                 for (int i = 0; i < this.getEntryCount(); i++) {
                     Entry entry = this.getEntry(i);
-                    if (entry instanceof MusicEntry musicEntry) {
+                    if (entry instanceof GroupedTrackEntry musicEntry) {
                         musicEntry.frequencySlider.reset();
                     }
                 }
@@ -86,12 +88,12 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
         return this.getRowRight() + 30;
     }
 
-    public  class MusicEntry extends Entry {
+    public static class GroupedTrackEntry extends Entry {
         private final MusicTrack track;
         private final MusicFrequencySliderWidget frequencySlider;
         private boolean visible;
 
-        public MusicEntry(MusicTrack track) {
+        public GroupedTrackEntry(MusicTrack track) {
             this.visible = true;
             this.track = track;
             this.frequencySlider = new MusicFrequencySliderWidget(track, 0, 0, 150, 20,
@@ -110,7 +112,9 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
         public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
             frequencySlider.setPosition(x+185,y-8);
             frequencySlider.render(context, mouseX, mouseY, tickDelta);
-            context.drawText(MinecraftClient.getInstance().textRenderer, track.getTitle().asTruncatedString(29), x+25, y, Color.WHITE.getRGB(), false);
+            String italic = track.isVanilla() ? "" : "§o";
+            Text title = Text.of(italic + track.getTitle().asTruncatedString(29));
+            context.drawText(MinecraftClient.getInstance().textRenderer, title, x+25, y, Color.WHITE.getRGB(), false);
         }
 
 
@@ -152,24 +156,18 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
     public class MusicGroupEntry extends Entry {
         private final String groupName;
         private final MusicSound sound;
-        private final List<MusicEntry> tracks;
+        private final List<GroupedTrackEntry> tracks;
         private final ButtonWidget playButton;
         private final ButtonWidget resetButton;
         private boolean collapsed;
 
-        public MusicGroupEntry(String groupName, MusicSound sound, List<MusicEntry> tracks) {
+        public MusicGroupEntry(String groupName, MusicSound sound, List<GroupedTrackEntry> tracks) {
             this.groupName = groupName;
             this.sound = sound;
             this.tracks = tracks;
-            this.playButton = ButtonWidget.builder(Text.literal("▶"), (button -> {
-                        MusicTracker musicTracker = MinecraftClient.getInstance().getMusicTracker();
-                        musicTracker.stop();
-                        musicTracker.play(new MusicInstance(sound));
-            }))
-                    .dimensions(0, 0, 10, 10)
-                    .build();
+            this.playButton = MusicButtons.playButton(sound, 0, 0, 10, 10);
 
-            Text playText = MusicListWidget.this.client.player != null ? Text.translatable("options.sounds.musicconfig.preview") :
+            Text playText = GroupedMusicListWidget.this.client.player != null ? Text.translatable("options.sounds.musicconfig.preview") :
                     Text.translatable("options.sounds.musicconfig.preview").append("\n").append(Text.translatable("options.sounds.musicconfig.preview.inmenu").withColor(Color.yellow.getRGB()));
 
             playButton.setTooltip(Tooltip.of(playText));
@@ -184,7 +182,7 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
         @Override
         public void render(DrawContext context, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean hovered, float tickDelta) {
             playButton.setPosition(x,y);
-            resetButton.setPosition(MusicListWidget.this.getScrollbarX() - 50,y);
+            resetButton.setPosition(GroupedMusicListWidget.this.getScrollbarX() - 50,y);
             playButton.render(context, mouseX, mouseY, tickDelta);
             resetButton.render(context, mouseX, mouseY, tickDelta);
             String collapseIcon = collapsed ? "▶" : "▼";
@@ -214,26 +212,26 @@ public class MusicListWidget extends ElementListWidget<MusicListWidget.Entry> {
         private void collapse() {
             this.collapsed = !this.collapsed;
             this.tracks.forEach(entry -> entry.setVisible(!entry.isVisible()));
-            MusicListWidget.this.populate();
+            GroupedMusicListWidget.this.populate();
         }
 
         public void resetTracksIfConfirmed() {
-            MusicListWidget.this.client.setScreen(new ConfirmScreen((confirmed) -> {
+            GroupedMusicListWidget.this.client.setScreen(new ConfirmScreen((confirmed) -> {
                 if (confirmed) {
                     for (Entry entry : this.tracks) {
-                        if (entry instanceof MusicEntry musicEntry) {
+                        if (entry instanceof GroupedTrackEntry musicEntry) {
                             musicEntry.frequencySlider.reset();
                         }
                     }
                 }
 
-                MusicListWidget.this.client.setScreen(MusicListWidget.this.parent);
+                GroupedMusicListWidget.this.client.setScreen(GroupedMusicListWidget.this.parent);
             }, Text.translatable("options.sounds.musicconfig.reset"), Text.translatable("options.sounds.musicconfig.reset.question", groupName), Text.translatable("options.sounds.musicconfig.reset.confirm"), ScreenTexts.CANCEL));
         }
     }
 
     @Environment(EnvType.CLIENT)
-    public abstract static class Entry extends ElementListWidget.Entry<MusicListWidget.Entry> implements AutoCloseable {
+    public abstract static class Entry extends ElementListWidget.Entry<GroupedMusicListWidget.Entry> implements AutoCloseable {
         public Entry() {
         }
 

@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Optional;
 
 public record SaveableMusicConfig(List<SaveableMusicGroup> musicGroups) {
-    private static Path gameDir = MinecraftClient.getInstance().runDirectory.toPath();
-    private static Path configPath = gameDir.resolve("music_config.json");
+    private static final Path GAME_DIR = MinecraftClient.getInstance().runDirectory.toPath();
+    private static final Path CONFIG_PATH = GAME_DIR.resolve("music_config.json");
 
-    public Optional<Integer> getFrequencyForSound(RegistryKey<SoundEvent> soundEvent, Identifier sound) {
+    public Optional<Integer> getFrequencyForSoundEvent(RegistryKey<SoundEvent> soundEvent, Identifier sound) {
         for (SaveableMusicGroup group : musicGroups) {
             if (group.soundEvent().equalsIgnoreCase(soundEvent.getValue().toString())) {
                 for (SaveableMusicTrack track : group.tracks()) {
@@ -37,8 +37,8 @@ public record SaveableMusicConfig(List<SaveableMusicGroup> musicGroups) {
 
     public static Optional<SaveableMusicConfig> fromFile() {
         try {
-            if (Files.exists(configPath)) {
-                String json = Files.readString(configPath);
+            if (Files.exists(CONFIG_PATH)) {
+                String json = Files.readString(CONFIG_PATH);
                 return Optional.of(fromJson(json));
             } else {
                 return Optional.empty();
@@ -52,7 +52,7 @@ public record SaveableMusicConfig(List<SaveableMusicGroup> musicGroups) {
     public boolean save() {
         try {
             String json = toJson();
-            Files.writeString(configPath, json);
+            Files.writeString(CONFIG_PATH, json);
             return true;
         } catch (Exception e) {
             MusicConfigMod.LOGGER.error(e.getMessage());

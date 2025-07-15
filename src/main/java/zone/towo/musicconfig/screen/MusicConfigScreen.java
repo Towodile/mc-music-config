@@ -11,13 +11,15 @@ import net.minecraft.util.math.random.Random;
 import zone.towo.musicconfig.MusicConfigMod;
 import zone.towo.musicconfig.file.SaveableMusicConfig;
 import zone.towo.musicconfig.music.MusicGroup;
-import zone.towo.musicconfig.screen.widget.MusicListWidget;
+import zone.towo.musicconfig.music.MusicResource;
+import zone.towo.musicconfig.music.MusicTrack;
+import zone.towo.musicconfig.screen.widget.list.GroupedMusicListWidget;
 
 import java.util.ArrayList;
 
 public class MusicConfigScreen extends GameOptionsScreen {
     private static ArrayList<MusicGroup> musicGroups;
-    private MusicListWidget musicList;
+    private GroupedMusicListWidget musicList;
     private String currentSearchTerm = "";
 
     public MusicConfigScreen(Screen parent, MinecraftClient client) {
@@ -57,7 +59,7 @@ public class MusicConfigScreen extends GameOptionsScreen {
 
     @Override
     protected void initBody() {
-        this.musicList = this.layout.addBody(new MusicListWidget(musicGroups, this, this.client));
+        this.musicList = this.layout.addBody(new GroupedMusicListWidget(musicGroups, this, this.client));
 
     }
 
