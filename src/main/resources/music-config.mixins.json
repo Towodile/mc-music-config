@@ -5,6 +5,7 @@
 	"mixins": [
 		"sound.SoundMixin",
 		"sound.WeightedSoundSetAccessor",
+		"sound.SoundManagerAccessor",
 		"screen.SoundOptionsScreenMixin"
 	],
 	"injectors": {

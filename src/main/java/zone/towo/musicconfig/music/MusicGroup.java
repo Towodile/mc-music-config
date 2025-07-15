@@ -6,15 +6,17 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.floatprovider.ConstantFloatProvider;
 import net.minecraft.util.math.random.Random;
 import zone.towo.musicconfig.file.SaveableMusicConfig;
+import zone.towo.musicconfig.mixin.sound.SoundManagerAccessor;
 import zone.towo.musicconfig.mixin.sound.WeightedSoundSetAccessor;
 
 import java.util.*;
 
 public record MusicGroup(String name, MusicSound groupedMusic, ArrayList<MusicTrack> tracks) {
 
-    // TODO: ability to add more music to a group
     public static ArrayList<MusicGroup> getAll(MinecraftClient client, Random random) {
         Optional<SaveableMusicConfig> savedData = SaveableMusicConfig.fromFile();
 
@@ -50,5 +52,35 @@ public record MusicGroup(String name, MusicSound groupedMusic, ArrayList<MusicTr
         }
         musicGroups.sort(Comparator.comparing(mg -> mg.name().toLowerCase()));
         return musicGroups;
+    }
+
+    public void addTracks(SoundManager soundManager, MusicTrack... newTracks) {
+        for (MusicTrack track : newTracks) {
+            if (!this.has(track.getSound())) {
+                this.asSoundSet(soundManager).add(track.getSound());
+                tracks.add(track);
+            }
+        }
+    }
+
+    public void removeTrack(MusicTrack track, SoundManager soundManager) {
+        if (this.has(track.getSound())) {
+            // remove
+            tracks.remove(track);
+        }
+    }
+
+    private boolean has(Sound sound) {
+        for (MusicTrack track : tracks) {
+            if (track.getSound().getIdentifier().equals(sound.getIdentifier())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private WeightedSoundSet asSoundSet(SoundManager soundManager) {
+        var optKey = this.groupedMusic.sound().getKey();
+        return optKey.map(soundEventRegistryKey -> soundManager.get(soundEventRegistryKey.getValue())).orElse(null);
     }
 }

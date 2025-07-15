@@ -1,6 +1,8 @@
 package zone.towo.musicconfig.music;
 
 import net.minecraft.client.sound.Sound;
+import net.minecraft.client.sound.SoundEngine;
+import net.minecraft.client.sound.SoundManager;
 import net.minecraft.text.Text;
 import zone.towo.musicconfig.util.SoundExtension;
 
