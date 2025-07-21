@@ -2,8 +2,9 @@
   "options.sounds.musicconfig.title": "Music Configuration",
   "options.sounds.musicconfig.search": "Search music track...",
 
-  "options.sounds.musicconfig.preview": "Preview random Music",
-  "options.sounds.musicconfig.preview.inmenu": "Works best if done outside of Main Menu (e.g. in a world)",
+  "options.sounds.musicconfig.play.track": "Play",
+  "options.sounds.musicconfig.play.group": "Play random music",
+  "options.sounds.musicconfig.play.inmenu": "Works best if done outside of Main Menu (e.g. in a world)",
 
   "options.sounds.musicconfig.reset": "Reset to Default",
   "options.sounds.musicconfig.reset.question": "Are you sure you want to reset the changes made to music for context '%s'?",

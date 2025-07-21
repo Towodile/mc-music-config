@@ -11,8 +11,6 @@ import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ElementListWidget;
-import net.minecraft.client.sound.MusicInstance;
-import net.minecraft.client.sound.MusicTracker;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.text.Text;
@@ -88,16 +86,21 @@ public class GroupedMusicListWidget extends ElementListWidget<GroupedMusicListWi
         return this.getRowRight() + 30;
     }
 
-    public static class GroupedTrackEntry extends Entry {
+    public class GroupedTrackEntry extends Entry {
         private final MusicTrack track;
         private final MusicFrequencySliderWidget frequencySlider;
         private boolean visible;
+        private final ButtonWidget playButton;
 
         public GroupedTrackEntry(MusicTrack track) {
             this.visible = true;
             this.track = track;
             this.frequencySlider = new MusicFrequencySliderWidget(track, 0, 0, 150, 20,
                     Text.translatable("options.sounds.musicconfig.frequency", track.getTitle()), track.getFrequency());
+            this.playButton = MusicButtons.trackPlayButton(track, 0, 0, 10, 10);
+            Text playText = GroupedMusicListWidget.this.client.player != null ? Text.translatable("options.sounds.musicconfig.play.track") :
+                    Text.translatable("options.sounds.musicconfig.play.track").append("\n").append(Text.translatable("options.sounds.musicconfig.play.inmenu").withColor(Color.yellow.getRGB()));
+            playButton.setTooltip(Tooltip.of(playText));
         }
 
         public boolean isVisible() {
@@ -110,6 +113,8 @@ public class GroupedMusicListWidget extends ElementListWidget<GroupedMusicListWi
 
         @Override
         public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+            playButton.setPosition(x+10,y);
+            playButton.render(context, mouseX, mouseY, tickDelta);
             frequencySlider.setPosition(x+185,y-8);
             frequencySlider.render(context, mouseX, mouseY, tickDelta);
             String italic = track.isVanilla() ? "" : "§o";
@@ -125,6 +130,10 @@ public class GroupedMusicListWidget extends ElementListWidget<GroupedMusicListWi
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (playButton.mouseClicked(mouseX, mouseY, button)) {
+                return true;
+            }
+
             super.mouseClicked(mouseX, mouseY, button);
             return frequencySlider.mouseClicked(mouseX, mouseY, button);
         }
@@ -143,8 +152,8 @@ public class GroupedMusicListWidget extends ElementListWidget<GroupedMusicListWi
 
         @Override
         public void mouseMoved(double mouseX, double mouseY) {
-            frequencySlider.mouseMoved(mouseX, mouseY);
             super.mouseMoved(mouseX, mouseY);
+            frequencySlider.mouseMoved(mouseX, mouseY);
         }
 
         @Override
@@ -165,10 +174,10 @@ public class GroupedMusicListWidget extends ElementListWidget<GroupedMusicListWi
             this.groupName = groupName;
             this.sound = sound;
             this.tracks = tracks;
-            this.playButton = MusicButtons.playButton(sound, 0, 0, 10, 10);
+            this.playButton = MusicButtons.groupPlayButton(sound, 0, 0, 10, 10);
 
-            Text playText = GroupedMusicListWidget.this.client.player != null ? Text.translatable("options.sounds.musicconfig.preview") :
-                    Text.translatable("options.sounds.musicconfig.preview").append("\n").append(Text.translatable("options.sounds.musicconfig.preview.inmenu").withColor(Color.yellow.getRGB()));
+            Text playText = GroupedMusicListWidget.this.client.player != null ? Text.translatable("options.sounds.musicconfig.play.group") :
+                    Text.translatable("options.sounds.musicconfig.play.group").append("\n").append(Text.translatable("options.sounds.musicconfig.play.inmenu").withColor(Color.yellow.getRGB()));
 
             playButton.setTooltip(Tooltip.of(playText));
             this.resetButton = ButtonWidget.builder(Text.literal(" ↶ "), (button -> resetTracksIfConfirmed()))

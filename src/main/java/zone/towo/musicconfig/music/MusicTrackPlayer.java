@@ -46,6 +46,7 @@ public class MusicTrackPlayer {
         }
 
         RegistryEntry<SoundEvent> soundEvent = Registries.SOUND_EVENT.getEntry(DynamicSoundEvents.MUSIC_ALL);
+        client.getMusicTracker().stop();
         client.getMusicTracker().play(new MusicInstance(new MusicSound(soundEvent, Integer.MAX_VALUE, 0, true)));
     }
 }
