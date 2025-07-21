@@ -2,6 +2,7 @@ package zone.towo.musicconfig.screen.widget;
 
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
+import zone.towo.musicconfig.MusicConfigMod;
 import zone.towo.musicconfig.music.MusicTrack;
 
 public class MusicFrequencySliderWidget extends SliderWidget {

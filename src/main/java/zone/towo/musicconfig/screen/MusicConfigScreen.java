@@ -11,8 +11,6 @@ import net.minecraft.util.math.random.Random;
 import zone.towo.musicconfig.MusicConfigMod;
 import zone.towo.musicconfig.file.SaveableMusicConfig;
 import zone.towo.musicconfig.music.MusicGroup;
-import zone.towo.musicconfig.music.MusicResource;
-import zone.towo.musicconfig.music.MusicTrack;
 import zone.towo.musicconfig.screen.widget.list.GroupedMusicListWidget;
 
 import java.util.ArrayList;
@@ -25,7 +23,7 @@ public class MusicConfigScreen extends GameOptionsScreen {
     public MusicConfigScreen(Screen parent, MinecraftClient client) {
         super(parent, client.options, Text.translatable("options.sounds.musicconfig.title"));
         if (musicGroups == null) {
-            musicGroups = MusicGroup.getAll(client, Random.create());
+            musicGroups = MusicGroup.getAll();
         }
     }
 

@@ -7,6 +7,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.random.Random;
+import zone.towo.musicconfig.MusicConfigMod;
 import zone.towo.musicconfig.file.SaveableMusicConfig;
 import zone.towo.musicconfig.file.SaveableMusicGroup;
 import zone.towo.musicconfig.mixin.sound.WeightedSoundSetAccessor;
@@ -15,7 +16,10 @@ import java.util.*;
 
 public record MusicGroup(String name, MusicSound groupedMusic, ArrayList<MusicTrack> tracks) {
 
-    public static ArrayList<MusicGroup> getAll(MinecraftClient client, Random random) {
+    private static ArrayList<MusicGroup> ALL;
+
+    public static void initialize(MinecraftClient client, Random random) {
+
         Optional<SaveableMusicConfig> savedData = SaveableMusicConfig.fromFile();
 
         SoundManager soundManager = client.getSoundManager();
@@ -67,7 +71,17 @@ public record MusicGroup(String name, MusicSound groupedMusic, ArrayList<MusicTr
                 )
         );
         musicGroups.sort(Comparator.comparing(mg -> mg.name().toLowerCase()));
-        return musicGroups;
+        ALL = musicGroups;
+        SaveableMusicConfig.of(ALL).save();
+        MusicConfigMod.LOGGER.info("Initialized {} music groups.", ALL.size());
+    }
+
+    public static ArrayList<MusicGroup> getAll() {
+        if (ALL == null) {
+            MusicConfigMod.LOGGER.error("Music groups have not been initialized, cannot retrieve data.");
+            return null;
+        }
+        return ALL;
     }
 
     public void addTracks(SoundManager soundManager, MusicTrack... newTracks) {
