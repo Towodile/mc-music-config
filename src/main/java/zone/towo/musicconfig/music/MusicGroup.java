@@ -24,9 +24,9 @@ public record MusicGroup(String name, MusicSound groupedMusic, ArrayList<MusicTr
 
         SoundManager soundManager = client.getSoundManager();
         ArrayList<MusicGroup> musicGroups = new ArrayList<>();
-
         for (var key : Registries.SOUND_EVENT.getKeys()) {
-            if (!key.getValue().getPath().startsWith("music.")) {
+            String keyName = key.getValue().getPath();
+            if (!keyName.startsWith("music.") || (key.getValue().getNamespace().equals(MusicConfigMod.MOD_ID) && keyName.equals("music.all"))) {
                 continue;
             }
             ArrayList<MusicTrack> tracks = new ArrayList<>();
@@ -49,7 +49,7 @@ public record MusicGroup(String name, MusicSound groupedMusic, ArrayList<MusicTr
             }
 
             Optional<RegistryEntry.Reference<SoundEvent>> soundEvent = Registries.SOUND_EVENT.getEntry(key.getValue());
-            MusicSound musicSound = soundEvent.isPresent() ? new MusicSound(soundEvent.get(), Integer.MAX_VALUE, 0, true) : null;
+            MusicSound musicSound = soundEvent.map(soundEventReference -> new MusicSound(soundEventReference, Integer.MAX_VALUE, 0, true)).orElse(null);
             if (!tracks.isEmpty()) musicGroups.add(new MusicGroup(formattedName, musicSound, tracks));
         }
 
